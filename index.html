@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linchpin Collective — The Art of Translation</title>
+<meta name="description" content="Linchpin AI · Experimental — 번역을 예술 행위로. 추상과 타이포그래피로 표현하는 새로운 인터페이스.">
+<meta property="og:title" content="Linchpin Collective — The Art of Translation">
+<meta property="og:description" content="번역을 예술로. 추상적 인터페이스 실험.">
+<meta property="og:image" content="/og-image-v2.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,700;0,6..96,800;1,6..96,400&family=Tangerine:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --red: #D8181F;
+  --red-deep: #B2121A;
+  --black: #0A0A0A;
+  --black-soft: #1A1A1A;
+  --pink: #FF8B8B;
+  --pink-warm: #FFB89B;
+  --cream: #F5E8D0;
+  --serif: 'Bodoni Moda', 'Playfair Display', Georgia, serif;
+  --script: 'Tangerine', cursive;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', -apple-system, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--red);
+  color: var(--black);
+  font-family: var(--sans);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── 페이지 그레인 (옅은 노이즈로 textile/print 느낌) ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+/* ── 좌상단 필기체 로고 ── */
+.brand-mark {
+  position: fixed;
+  top: 28px;
+  left: 36px;
+  z-index: 100;
+  font-family: var(--script);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--black);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  line-height: 0.9;
+}
+
+/* ── 우상단 시스템 메타 ── */
+.system-meta {
+  position: fixed;
+  top: 28px;
+  right: 36px;
+  z-index: 100;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--black);
+  text-align: right;
+  letter-spacing: 1px;
+  line-height: 1.7;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.system-meta .pill {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border: 1px solid rgba(0,0,0,0.3);
+  border-radius: 100px;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+}
+
+/* ── 좌하단 / 우하단 메타 ── */
+.bottom-meta {
+  position: fixed;
+  bottom: 24px;
+  z-index: 100;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--black);
+  letter-spacing: 1.2px;
+  line-height: 1.7;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.bottom-meta.left { left: 36px; }
+.bottom-meta.right { right: 36px; text-align: right; }
+
+/* ── 우측 세로 라벨 ── */
+.scroll-label {
+  position: fixed;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%) rotate(180deg);
+  writing-mode: vertical-rl;
+  z-index: 100;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--black);
+  opacity: 0.7;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ── 메인 ── */
+main { position: relative; z-index: 1; }
+
+/* ── 입체 책 (배경 sticky 회전) ── */
+.book-stage {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1400px;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+  perspective: 2200px;
+  perspective-origin: 50% 35%;
+}
+.book-3d {
+  position: sticky;
+  top: 32vh;
+  width: 280px;
+  height: 400px;
+  margin: 0 auto;
+  transform-style: preserve-3d;
+  transform: rotateY(var(--by, -8deg)) rotateX(var(--bx, -14deg)) rotateZ(var(--bz, 0deg)) translateY(var(--bty, 0px));
+  --depth: 32px;
+  filter: drop-shadow(0 40px 60px rgba(20,0,0,0.55)) drop-shadow(0 8px 12px rgba(20,0,0,0.35));
+  will-change: transform;
+}
+.book-3d > div {
+  position: absolute;
+  backface-visibility: hidden;
+}
+.bk-front, .bk-back { width: 100%; height: 100%; }
+.bk-front {
+  background: linear-gradient(155deg, #1a0808 0%, #050505 100%);
+  transform: translateZ(calc(var(--depth) / 2));
+  border: 1px solid rgba(255,160,140,0.18);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 36px 24px;
+  text-align: center;
+  position: relative;
+}
+.bk-front::before {
+  content: '';
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(255,140,120,0.4);
+}
+.bk-front .bk-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(255,180,160,0.5);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.bk-front .bk-title {
+  font-family: var(--serif);
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--pink);
+  text-transform: uppercase;
+  line-height: 1;
+}
+.bk-front .bk-foot {
+  position: absolute;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(255,180,160,0.45);
+  text-transform: uppercase;
+}
+.bk-back {
+  background: linear-gradient(155deg, #050505 0%, #1a0808 100%);
+  transform: translateZ(calc(var(--depth) / -2)) rotateY(180deg);
+  border: 1px solid rgba(255,160,140,0.12);
+}
+.bk-spine {
+  width: var(--depth);
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: linear-gradient(90deg, #050505, #1a0808 50%, #050505);
+  transform: translateX(calc(var(--depth) / -2)) rotateY(-90deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid rgba(255,160,140,0.12);
+  border-bottom: 1px solid rgba(255,160,140,0.12);
+}
+.bk-spine span {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: rgba(255,180,160,0.4);
+  letter-spacing: 3px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  text-transform: uppercase;
+}
+.bk-edge {
+  width: var(--depth);
+  height: 100%;
+  right: 0;
+  top: 0;
+  background: repeating-linear-gradient(180deg, #f5e8d0 0px, #d8c4a0 1.2px, #f5e8d0 2.4px);
+  transform: translateX(calc(var(--depth) / 2)) rotateY(90deg);
+  box-shadow: inset 0 0 10px rgba(80,40,20,0.4);
+}
+.bk-top, .bk-bottom {
+  width: 100%;
+  height: var(--depth);
+  left: 0;
+  background: repeating-linear-gradient(90deg, #f5e8d0 0px, #d8c4a0 1.2px, #f5e8d0 2.4px);
+  box-shadow: inset 0 0 8px rgba(80,40,20,0.35);
+}
+.bk-top { top: 0; transform: translateY(calc(var(--depth) / -2)) rotateX(90deg); }
+.bk-bottom { bottom: 0; transform: translateY(calc(var(--depth) / 2)) rotateX(-90deg); }
+
+/* ── 섹션 — 거대 헤드라인 + 양옆 카피 ── */
+section.lp {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 120px 80px;
+  z-index: 2;
+}
+.lp-headline {
+  font-family: var(--serif);
+  font-size: clamp(64px, 11vw, 168px);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -2px;
+  color: var(--black);
+  text-align: center;
+  width: 100%;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+.lp-quote-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 120px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+.lp-quote {
+  padding-top: 24px;
+  border-top: 1px solid rgba(0,0,0,0.45);
+}
+.lp-quote .label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--black);
+  opacity: 0.85;
+  margin-bottom: 18px;
+}
+.lp-quote .text {
+  font-family: var(--serif);
+  font-size: clamp(22px, 2.5vw, 32px);
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+  color: var(--black);
+  text-transform: uppercase;
+}
+.lp-quote.right { text-align: left; }
+
+/* ── 헤드라인 + 양쪽 카피 동시 표현 (영상 첫 장면처럼) ── */
+.lp-hero {
+  flex-direction: column;
+  gap: 80px;
+  padding-top: 140px;
+  padding-bottom: 80px;
+}
+.lp-tagline {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--black);
+  text-align: center;
+  position: relative;
+}
+.lp-tagline::before, .lp-tagline::after {
+  content: '';
+  display: inline-block;
+  width: 60px;
+  height: 1px;
+  background: var(--black);
+  vertical-align: middle;
+  margin: 0 16px;
+  opacity: 0.6;
+}
+
+/* ── 버튼 / CTA ── */
+.cta-row {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 40px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 3;
+}
+.cta-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  border: 1px solid var(--black);
+  background: transparent;
+  color: var(--black);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.25s;
+  border-radius: 0;
+}
+.cta-btn:hover { background: var(--black); color: var(--red); }
+.cta-btn.solid { background: var(--black); color: var(--red); }
+.cta-btn.solid:hover { background: var(--pink); color: var(--black); border-color: var(--pink); }
+
+/* ── 섹션 디바이더 ── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 80px;
+  position: relative;
+  z-index: 2;
+}
+.section-divider::before, .section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--black);
+  opacity: 0.4;
+}
+.section-divider .star {
+  font-family: var(--mono);
+  font-size: 18px;
+  margin: 0 36px;
+  color: var(--black);
+  opacity: 0.6;
+}
+
+footer {
+  padding: 80px 80px 36px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--black);
+  text-align: center;
+  opacity: 0.85;
+  position: relative;
+  z-index: 2;
+}
+footer .ft-line { margin-bottom: 8px; line-height: 1.8; }
+
+@media (max-width: 900px) {
+  .brand-mark { top: 18px; left: 20px; font-size: 32px; }
+  .system-meta { top: 18px; right: 20px; font-size: 9px; }
+  .bottom-meta.left { left: 20px; bottom: 18px; font-size: 9px; }
+  .bottom-meta.right { right: 20px; bottom: 18px; font-size: 9px; display: none; }
+  .scroll-label { display: none; }
+  section.lp { padding: 120px 24px; }
+  .lp-quote-wrap { grid-template-columns: 1fr; gap: 36px; }
+  .book-3d { width: 200px; height: 286px; --depth: 22px; top: 30vh; }
+  .bk-front .bk-title { font-size: 28px; }
+  .section-divider { padding: 0 24px; }
+  footer { padding: 60px 24px 28px; }
+}
+
+::selection { background: var(--black); color: var(--red); }
+</style>
+</head>
+<body>
+
+<a class="brand-mark" href="/">Linchpin Collective</a>
+
+<div class="system-meta">
+  System v.1.00<br>
+  Est. 2026 · Seoul<br>
+  <span class="pill">[ Indexed ]</span>
+</div>
+
+<div class="bottom-meta left">
+  Linchpin Live<br>
+  Translation Engine · Core Protocol 01
+</div>
+
+<div class="bottom-meta right">
+  Trans-Lingual Engine<br>
+  Active · Real-Time
+</div>
+
+<div class="scroll-label">Scroll to Translate</div>
+
+<main>
+
+<!-- 책 무대: main 영역 전체에 sticky로 회전 -->
+<div class="book-stage" aria-hidden="true">
+  <div class="book-3d" id="book-3d">
+    <div class="bk-front">
+      <div class="bk-tag">Linchpin · Vol. 01</div>
+      <div class="bk-title">Terminology</div>
+      <div class="bk-foot">Linchpin Translation v.1</div>
+    </div>
+    <div class="bk-back"></div>
+    <div class="bk-spine"><span>Linchpin · Terminology</span></div>
+    <div class="bk-edge"></div>
+    <div class="bk-top"></div>
+    <div class="bk-bottom"></div>
+  </div>
+</div>
+
+<!-- ─── Section 1 — Hero ─── -->
+<section class="lp lp-hero">
+  <div class="lp-tagline">Universal Access</div>
+  <h1 class="lp-headline">The Fall<br>of Language</h1>
+  <div class="cta-row">
+    <a class="cta-btn solid" href="#manifesto">Begin Translation</a>
+    <a class="cta-btn" href="#about">About the Collective</a>
+  </div>
+</section>
+
+<div class="section-divider"><span class="star">✻</span></div>
+
+<!-- ─── Section 2 — Quote (원문 / 번역 병치) ─── -->
+<section class="lp" id="manifesto">
+  <div class="lp-quote-wrap">
+    <div class="lp-quote">
+      <div class="label">Origin · Source</div>
+      <div class="text">언어를 말하는 것은 하나의 세계, 하나의 문화를 짊어지는 일이다.</div>
+    </div>
+    <div class="lp-quote right">
+      <div class="label">Result · Synthesis</div>
+      <div class="text">To speak a language is to take on a world, a culture.</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"><span class="star">✻</span></div>
+
+<!-- ─── Section 3 — 거대 헤드라인 + 카피 ─── -->
+<section class="lp">
+  <div style="width:100%;text-align:center">
+    <h2 class="lp-headline">Beyond the<br>Printed Word</h2>
+    <div class="lp-tagline" style="margin-top:48px">Translation is not a copy<br>— it is an act of rebellion.</div>
+  </div>
+</section>
+
+<div class="section-divider"><span class="star">✻</span></div>
+
+<!-- ─── Section 4 — Manifesto ─── -->
+<section class="lp" id="about">
+  <div class="lp-quote-wrap">
+    <div class="lp-quote">
+      <div class="label">Manifesto · 01</div>
+      <div class="text">우리는 정확함을 넘어, 의미의 결을 옮긴다.</div>
+    </div>
+    <div class="lp-quote right">
+      <div class="label">Manifesto · 02</div>
+      <div class="text">번역은 두 세계를 잇는 다리가 아니라, 새로운 세계를 짓는 행위다.</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"><span class="star">✻</span></div>
+
+<!-- ─── Section 5 — CTA ─── -->
+<section class="lp">
+  <div style="width:100%;text-align:center">
+    <div class="lp-tagline" style="margin-bottom:40px">Index · Coming Soon</div>
+    <h2 class="lp-headline" style="font-size:clamp(48px,8vw,120px)">Enter the<br>Collective</h2>
+    <div class="cta-row">
+      <a class="cta-btn solid" href="https://www.linchpinai.io" target="_blank" rel="noopener">Visit Linchpin AI</a>
+      <a class="cta-btn" href="mailto:abcysl@gmail.com">Contact</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="ft-line">Linchpin Collective · An Experimental Edition by Linchpin AI</div>
+  <div class="ft-line">Seoul · Est. 2026 · All Rights Reserved</div>
+  <div class="ft-line" style="margin-top:18px;opacity:0.6">Visit production site: <a href="https://www.linchpinai.io" style="color:inherit;text-decoration:underline">linchpinai.io</a></div>
+</footer>
+
+<script>
+// ── 책 3D 회전 + 부유 (스크롤 진행도 연동) ──
+(function(){
+  const book = document.getElementById('book-3d');
+  if (!book) return;
+  let raf = null;
+  function update(){
+    raf = null;
+    const scrolled = window.scrollY;
+    const ry = -8 + scrolled * 0.18;          // Y축: 천천히 회전
+    const rx = -14 + Math.sin(scrolled * 0.005) * 8; // X축: 사인 흔들림
+    const rz = Math.sin(scrolled * 0.003) * 6;        // Z축: 살짝 기울기
+    const ty = Math.sin(scrolled * 0.004) * 14;       // Y이동: 부유감
+    book.style.setProperty('--by', ry + 'deg');
+    book.style.setProperty('--bx', rx + 'deg');
+    book.style.setProperty('--bz', rz + 'deg');
+    book.style.setProperty('--bty', ty + 'px');
+  }
+  window.addEventListener('scroll', () => {
+    if (raf) return;
+    raf = requestAnimationFrame(update);
+  }, { passive: true });
+  update();
+})();
+</script>
+
+</body>
+</html>
