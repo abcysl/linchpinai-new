@@ -3,671 +3,1123 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Linchpin Collective — The Art of Translation</title>
-<meta name="description" content="Linchpin AI · Experimental — 번역을 예술 행위로. 추상과 타이포그래피로 표현하는 새로운 인터페이스.">
-<meta property="og:title" content="Linchpin Collective — The Art of Translation">
-<meta property="og:description" content="번역을 예술로. 추상적 인터페이스 실험.">
+<title>Linchpin AI — 기억하는 번역 엔진</title>
+<meta name="description" content="이전 번역의 말투·용어·문체를 기억하고 자동 적용하는 AI 번역. 자막·문서 번역에 번역 메모리와 단어장을 결합한 국내 유일 서비스.">
+<meta property="og:title" content="Linchpin AI — 기억하는 번역 엔진">
+<meta property="og:description" content="이전 번역의 말투·용어·문체를 기억하고 자동 적용. 분당 700원부터, 11개 언어.">
 <meta property="og:image" content="/og-image-v2.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="/favicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,700;0,6..96,800;1,6..96,400&family=Tangerine:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --red: #D8181F;
-  --red-deep: #B2121A;
-  --black: #0A0A0A;
-  --black-soft: #1A1A1A;
-  --pink: #FF8B8B;
-  --pink-warm: #FFB89B;
-  --cream: #F5E8D0;
-  --serif: 'Bodoni Moda', 'Playfair Display', Georgia, serif;
-  --script: 'Tangerine', cursive;
+  --bg-deep: #0A0806;
+  --bg: #0F0C09;
+  --bg-soft: #14110D;
+  --text: #D9CDB3;
+  --text-muted: #9A8E7A;
+  --text-dim: #6B6354;
+  --accent: #E8C788;
+  --accent-warm: #D9A574;
+  --accent-glow: rgba(232,199,136,0.18);
+  --border: rgba(217,205,179,0.14);
+  --border-soft: rgba(217,205,179,0.08);
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans: 'Inter', 'Pretendard', -apple-system, sans-serif;
+  --kr: 'Pretendard', 'Inter', -apple-system, sans-serif;
   --mono: 'JetBrains Mono', monospace;
-  --sans: 'Inter', -apple-system, sans-serif;
 }
 
 html { scroll-behavior: smooth; }
 body {
-  background: var(--red);
-  color: var(--black);
-  font-family: var(--sans);
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: var(--kr);
   font-size: 15px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   position: relative;
+  min-height: 100vh;
 }
 
-/* ── 페이지 그레인 (옅은 노이즈로 textile/print 느낌) ── */
-body::before {
-  content: '';
+/* ── 일몰 구름 분위기 배경 (CSS only) ── */
+.atmosphere {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 0;
   pointer-events: none;
-  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-  mix-blend-mode: multiply;
-  opacity: 0.5;
+  background:
+    /* 우상단 일몰 글로우 */
+    radial-gradient(ellipse 80% 60% at 75% 18%, rgba(232,199,136,0.22), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 85% 30%, rgba(217,165,116,0.16), transparent 60%),
+    /* 좌하단 어두운 영역 */
+    radial-gradient(ellipse 70% 60% at 15% 90%, rgba(0,0,0,0.5), transparent 60%),
+    /* 가운데 옅은 글로우 */
+    radial-gradient(ellipse 90% 70% at 50% 45%, rgba(180,140,90,0.07), transparent 70%),
+    /* 베이스 그라데이션 */
+    linear-gradient(180deg, #0A0806 0%, #14100C 30%, #1A1410 55%, #0F0C09 100%);
 }
-
-/* ── 좌상단 필기체 로고 ── */
-.brand-mark {
-  position: fixed;
-  top: 28px;
-  left: 36px;
-  z-index: 100;
-  font-family: var(--script);
-  font-size: 38px;
-  font-weight: 700;
-  color: var(--black);
-  text-decoration: none;
-  letter-spacing: 0.5px;
-  line-height: 0.9;
-}
-
-/* ── 우상단 시스템 메타 ── */
-.system-meta {
-  position: fixed;
-  top: 28px;
-  right: 36px;
-  z-index: 100;
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 400;
-  color: var(--black);
-  text-align: right;
-  letter-spacing: 1px;
-  line-height: 1.7;
-  text-transform: uppercase;
-  opacity: 0.85;
-}
-.system-meta .pill {
-  display: inline-block;
-  margin-top: 6px;
-  padding: 4px 10px;
-  border: 1px solid rgba(0,0,0,0.3);
-  border-radius: 100px;
-  font-size: 9px;
-  letter-spacing: 1.5px;
-}
-
-/* ── 좌하단 / 우하단 메타 ── */
-.bottom-meta {
-  position: fixed;
-  bottom: 24px;
-  z-index: 100;
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--black);
-  letter-spacing: 1.2px;
-  line-height: 1.7;
-  text-transform: uppercase;
-  opacity: 0.85;
-}
-.bottom-meta.left { left: 36px; }
-.bottom-meta.right { right: 36px; text-align: right; }
-
-/* ── 우측 세로 라벨 ── */
-.scroll-label {
-  position: fixed;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%) rotate(180deg);
-  writing-mode: vertical-rl;
-  z-index: 100;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 4px;
-  color: var(--black);
-  opacity: 0.7;
-  text-transform: uppercase;
-  font-weight: 500;
-}
-
-/* ── 메인 ── */
-main { position: relative; z-index: 1; }
-
-/* ── 입체 책 (배경 sticky 회전) ── */
-.book-stage {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 1400px;
-  height: 100%;
-  z-index: 5;
-  pointer-events: none;
-  perspective: 1400px;
-  perspective-origin: 50% 35%;
-}
-.book-3d {
-  position: sticky;
-  top: 32vh;
-  width: 260px;
-  height: 380px;
-  margin: 0 auto;
-  transform-style: preserve-3d;
-  transform: rotateY(var(--by, -28deg)) rotateX(var(--bx, -16deg)) rotateZ(var(--bz, -3deg)) translateY(var(--bty, 0px));
-  --depth: 48px;
-  filter: drop-shadow(0 50px 70px rgba(20,0,0,0.6)) drop-shadow(0 12px 18px rgba(20,0,0,0.4));
-  will-change: transform;
-}
-.book-3d > div {
-  position: absolute;
-  backface-visibility: hidden;
-}
-.bk-front, .bk-back { width: 100%; height: 100%; }
-.bk-front {
-  background: linear-gradient(155deg, #1a0808 0%, #050505 100%);
-  transform: translateZ(calc(var(--depth) / 2));
-  border: 1px solid rgba(255,160,140,0.18);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 36px 24px;
-  text-align: center;
-  position: relative;
-}
-.bk-front::before {
+.atmosphere::after {
   content: '';
   position: absolute;
-  inset: 14px;
-  border: 1px solid rgba(255,140,120,0.4);
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.85  0 0 0 0 0.78  0 0 0 0 0.6  0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='280' height='280' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.6;
+  mix-blend-mode: overlay;
 }
-.bk-front .bk-tag {
-  font-family: var(--mono);
-  font-size: 8px;
-  letter-spacing: 2.5px;
-  color: rgba(255,180,160,0.5);
-  text-transform: uppercase;
-  margin-bottom: 22px;
-}
-.bk-front .bk-title {
-  font-family: var(--serif);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  color: var(--pink);
-  text-transform: uppercase;
-  line-height: 1;
-  max-width: 100%;
-  word-break: break-word;
-}
-.bk-front .bk-foot {
-  position: absolute;
-  bottom: 24px;
-  left: 16px;
-  right: 16px;
-  font-family: var(--mono);
-  font-size: 7px;
-  letter-spacing: 1.5px;
-  color: rgba(255,180,160,0.45);
-  text-transform: uppercase;
-  text-align: center;
-}
-.bk-back {
-  background: linear-gradient(155deg, #050505 0%, #1a0808 100%);
-  transform: translateZ(calc(var(--depth) / -2)) rotateY(180deg);
-  border: 1px solid rgba(255,160,140,0.12);
-}
-.bk-spine {
-  width: var(--depth);
-  height: 100%;
-  left: 0;
-  top: 0;
-  background: linear-gradient(90deg, #050505, #1a0808 50%, #050505);
-  transform: translateX(calc(var(--depth) / -2)) rotateY(-90deg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-top: 1px solid rgba(255,160,140,0.12);
-  border-bottom: 1px solid rgba(255,160,140,0.12);
-}
-.bk-spine span {
-  font-family: var(--mono);
-  font-size: 9px;
-  color: rgba(255,180,160,0.4);
-  letter-spacing: 3px;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  text-transform: uppercase;
-}
-.bk-edge {
-  width: var(--depth);
-  height: 100%;
-  right: 0;
-  top: 0;
-  background: repeating-linear-gradient(180deg, #f5e8d0 0px, #d8c4a0 1.2px, #f5e8d0 2.4px);
-  transform: translateX(calc(var(--depth) / 2)) rotateY(90deg);
-  box-shadow: inset 0 0 10px rgba(80,40,20,0.4);
-}
-.bk-top, .bk-bottom {
-  width: 100%;
-  height: var(--depth);
-  left: 0;
-  background: repeating-linear-gradient(90deg, #f5e8d0 0px, #d8c4a0 1.2px, #f5e8d0 2.4px);
-  box-shadow: inset 0 0 8px rgba(80,40,20,0.35);
-}
-.bk-top { top: 0; transform: translateY(calc(var(--depth) / -2)) rotateX(90deg); }
-.bk-bottom { bottom: 0; transform: translateY(calc(var(--depth) / 2)) rotateX(-90deg); }
 
-/* ── 섹션 — 거대 헤드라인 + 양옆 카피 ── */
-section.lp {
-  position: relative;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  padding: 120px 80px;
-  z-index: 2;
+/* ── 네비게이션 ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 40px;
+  background: rgba(10,8,6,0.4);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border-soft);
 }
-.lp-headline {
-  font-family: var(--serif);
-  font-size: clamp(64px, 11vw, 168px);
-  font-weight: 800;
-  line-height: 0.92;
-  letter-spacing: -2px;
-  color: var(--black);
-  text-align: center;
-  width: 100%;
-  text-transform: uppercase;
-  position: relative;
-  z-index: 1;
-}
-.lp-quote-wrap {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 120px;
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 2;
-}
-.lp-quote {
-  padding-top: 24px;
-  border-top: 1px solid rgba(0,0,0,0.45);
-}
-.lp-quote .label {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  color: var(--black);
-  opacity: 0.85;
-  margin-bottom: 18px;
-}
-.lp-quote .text {
-  font-family: var(--serif);
-  font-size: clamp(22px, 2.5vw, 32px);
-  font-weight: 400;
-  line-height: 1.25;
-  letter-spacing: -0.5px;
-  color: var(--black);
-  text-transform: uppercase;
-}
-.lp-quote.right { text-align: left; }
-
-/* ── 헤드라인 + 양쪽 카피 동시 표현 (영상 첫 장면처럼) ── */
-.lp-hero {
-  flex-direction: column;
-  gap: 80px;
-  padding-top: 140px;
-  padding-bottom: 80px;
-}
-.lp-tagline {
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
   font-family: var(--mono);
   font-size: 12px;
-  letter-spacing: 6px;
+  letter-spacing: 1.5px;
+  color: var(--text);
+  text-decoration: none;
   text-transform: uppercase;
-  color: var(--black);
-  text-align: center;
-  position: relative;
 }
-.lp-tagline::before, .lp-tagline::after {
-  content: '';
-  display: inline-block;
-  width: 60px;
-  height: 1px;
-  background: var(--black);
-  vertical-align: middle;
-  margin: 0 16px;
-  opacity: 0.6;
-}
+.nav-logo .lg-name { font-family: var(--serif); font-size: 22px; font-style: italic; letter-spacing: 0; text-transform: none; }
+.nav-logo .lg-sep { color: var(--text-dim); }
 
-/* ── 버튼 / CTA ── */
-.cta-row {
-  display: flex;
-  gap: 14px;
-  justify-content: center;
-  margin-top: 40px;
-  flex-wrap: wrap;
-  position: relative;
-  z-index: 3;
+.nav-center {
+  display: flex; gap: 28px;
+  position: absolute; left: 50%; transform: translateX(-50%);
 }
-.cta-btn {
+.nav-center a {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  letter-spacing: 0.3px;
+  transition: color 0.2s;
+}
+.nav-center a:hover { color: var(--text); }
+
+.nav-cta {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text);
+  text-decoration: none;
+  padding: 10px 22px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  transition: all 0.2s;
+}
+.nav-cta:hover { border-color: var(--accent); color: var(--accent); }
+
+.nav-hamburger { display: none; background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; color: var(--text); font-size: 16px; cursor: pointer; }
+.mobile-menu { display: none; position: fixed; top: 60px; left: 0; right: 0; background: rgba(10,8,6,0.95); backdrop-filter: blur(20px); padding: 16px 24px; flex-direction: column; gap: 4px; z-index: 99; border-bottom: 1px solid var(--border-soft); }
+.mobile-menu.open { display: flex; }
+.mobile-menu a { padding: 12px 0; color: var(--text-muted); text-decoration: none; font-size: 14px; border-bottom: 1px solid var(--border-soft); }
+.mobile-menu a:last-child { border: none; }
+
+/* ── 메인 ── */
+main { position: relative; z-index: 1; padding-top: 80px; }
+.section { max-width: 1280px; margin: 0 auto; padding: 120px 60px; position: relative; }
+
+/* ── 섹션 라벨 (작은 mono) ── */
+.eyebrow {
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 14px 28px;
-  border: 1px solid var(--black);
-  background: transparent;
-  color: var(--black);
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.25s;
-  border-radius: 0;
-}
-.cta-btn:hover { background: var(--black); color: var(--red); }
-.cta-btn.solid { background: var(--black); color: var(--red); }
-.cta-btn.solid:hover { background: var(--pink); color: var(--black); border-color: var(--pink); }
-
-/* ── 섹션 디바이더 ── */
-.section-divider {
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  text-transform: lowercase;
+  margin-bottom: 24px;
   display: flex;
   align-items: center;
-  width: 100%;
-  padding: 0 80px;
-  position: relative;
-  z-index: 2;
+  gap: 14px;
 }
-.section-divider::before, .section-divider::after {
+.eyebrow::before {
   content: '';
-  flex: 1;
+  display: inline-block;
+  width: 32px;
   height: 1px;
-  background: var(--black);
-  opacity: 0.4;
-}
-.section-divider .star {
-  font-family: var(--mono);
-  font-size: 18px;
-  margin: 0 36px;
-  color: var(--black);
-  opacity: 0.6;
+  background: var(--text-muted);
 }
 
-footer {
-  padding: 80px 80px 36px;
+/* ── 큰 헤드라인 ── */
+.headline {
+  font-family: var(--kr);
+  font-size: clamp(40px, 5.5vw, 78px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -1.5px;
+  color: var(--text);
+  margin-bottom: 32px;
+}
+.headline-sm {
+  font-family: var(--kr);
+  font-size: clamp(28px, 3.6vw, 48px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+.headline em, .headline-sm em {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+.lead {
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--text-muted);
+  max-width: 460px;
+}
+
+/* ── Hero ── */
+.hero {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 80px;
+  align-items: end;
+  padding-top: 160px;
+  padding-bottom: 200px;
+}
+.hero-right { padding-bottom: 8px; }
+.hero-cta-row {
+  display: flex; gap: 20px; align-items: center;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+.btn {
+  display: inline-block;
+  padding: 13px 26px;
+  border-radius: 100px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.25s;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+}
+.btn-solid { background: var(--text); color: var(--bg-deep); border: 1px solid var(--text); }
+.btn-solid:hover { background: var(--accent); border-color: var(--accent); }
+.btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { color: var(--accent); border-color: var(--accent); }
+.btn-link {
+  background: transparent;
+  color: var(--text);
+  border: none;
+  padding: 13px 0;
+  text-decoration: none;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+.btn-link:hover { color: var(--accent); }
+
+/* ── 3컬럼 features ── */
+.cols-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 56px;
+  margin-top: 80px;
+  border-top: 1px solid var(--border);
+  padding-top: 56px;
+}
+.col-item .col-title {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-style: italic;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+.col-item .col-desc {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text-muted);
+}
+
+/* ── Pillars 카드 (구름 위에 떠있는 느낌) ── */
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 56px;
+}
+.pillar-card {
+  background: rgba(20,17,13,0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  padding: 28px 24px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  min-height: 240px;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+.pillar-card:hover {
+  border-color: var(--accent);
+  background: rgba(30,25,18,0.75);
+  transform: translateY(-2px);
+}
+.pillar-num {
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 1.5px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  display: inline-block;
+  padding: 3px 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: 3px;
+  align-self: flex-start;
   text-transform: uppercase;
-  color: var(--black);
-  text-align: center;
-  opacity: 0.85;
-  position: relative;
-  z-index: 2;
 }
-footer .ft-line { margin-bottom: 8px; line-height: 1.8; }
-
-@media (max-width: 900px) {
-  .brand-mark { top: 18px; left: 20px; font-size: 32px; }
-  .system-meta { top: 18px; right: 20px; font-size: 9px; }
-  .bottom-meta.left { left: 20px; bottom: 18px; font-size: 9px; }
-  .bottom-meta.right { right: 20px; bottom: 18px; font-size: 9px; display: none; }
-  .scroll-label { display: none; }
-  section.lp { padding: 120px 24px; }
-  .lp-quote-wrap { grid-template-columns: 1fr; gap: 36px; }
-  .book-3d { width: 190px; height: 270px; --depth: 32px; top: 30vh; }
-  .bk-front .bk-title { font-size: 18px; letter-spacing: 1px; }
-  .bk-front { padding: 28px 16px; }
-  .bk-front .bk-tag { font-size: 7px; margin-bottom: 16px; }
-  .section-divider { padding: 0 24px; }
-  footer { padding: 60px 24px 28px; }
-  .svc-grid { grid-template-columns: 1fr !important; }
-  .lp-headline { font-size: clamp(48px, 14vw, 88px) !important; }
-}
-
-/* ── 서비스 카드 (Gloss 톤) ── */
-.svc-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 3;
-}
-.svc-card {
-  display: flex;
-  flex-direction: column;
-  padding: 36px 32px;
-  background: var(--black);
-  color: var(--cream);
-  text-decoration: none;
-  border: 1px solid rgba(255,180,160,0.25);
-  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-  position: relative;
-  min-height: 240px;
-}
-.svc-card:hover {
-  background: var(--pink);
-  color: var(--black);
-  border-color: var(--pink);
-  transform: translate(-4px, -4px);
-  box-shadow: 8px 8px 0 var(--black);
-}
-.svc-tag {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  opacity: 0.7;
-  margin-bottom: 18px;
-}
-.svc-title {
-  font-family: var(--serif);
-  font-size: 36px;
-  font-weight: 700;
-  line-height: 1;
+.pillar-title {
+  font-family: var(--kr);
+  font-size: 24px;
+  font-weight: 500;
   letter-spacing: -0.5px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
-.svc-desc {
-  font-family: var(--sans);
-  font-size: 14px;
+.pillar-desc {
+  font-size: 13.5px;
   line-height: 1.7;
+  color: var(--text-muted);
   margin-bottom: auto;
-  opacity: 0.9;
 }
-.svc-meta {
+.pillar-meta {
   font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-top: 28px;
+  font-size: 11px;
+  color: var(--accent);
+  margin-top: 24px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid currentColor;
-  padding-top: 14px;
-  opacity: 0.8;
 }
-.svc-card:hover .svc-meta { opacity: 1; }
 
-::selection { background: var(--black); color: var(--red); }
+/* ── Capability boxes (4단 가로) ── */
+.capability-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-top: 36px;
+  padding: 32px;
+  background: rgba(20,17,13,0.5);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.cap-item .cap-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.cap-item .cap-name {
+  font-family: var(--kr);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.cap-item .cap-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+/* ── Methodology (M_01 형식) ── */
+.method-list { margin-top: 36px; border-top: 1px solid var(--border); }
+.method-row {
+  display: grid;
+  grid-template-columns: 80px 220px 1fr;
+  gap: 40px;
+  align-items: center;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border);
+}
+.method-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1.5px;
+}
+.method-name {
+  font-family: var(--kr);
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+.method-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* ── Stats strip ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 36px;
+  padding: 36px 32px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: rgba(20,17,13,0.4);
+}
+.stat-item .stat-val {
+  font-family: var(--serif);
+  font-size: 40px;
+  font-weight: 400;
+  color: var(--accent);
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.stat-item .stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ── Languages strip ── */
+.languages-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 32px;
+}
+.lang-pill {
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: rgba(20,17,13,0.4);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.lang-pill .flag { font-size: 16px; }
+.lang-pill .lang-name { font-weight: 500; color: var(--text); }
+.lang-pill .lang-tag { font-family: var(--mono); font-size: 10px; color: var(--accent); margin-left: auto; }
+
+/* ── Demo 카드 (TM, Glossary 예시) ── */
+.demo-card {
+  margin-top: 28px;
+  padding: 28px;
+  background: rgba(20,17,13,0.5);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.demo-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.demo-row {
+  padding: 14px 18px;
+  background: rgba(0,0,0,0.35);
+  border-radius: 3px;
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--text);
+  font-family: var(--serif);
+  margin-bottom: 10px;
+}
+.demo-row strong { color: var(--accent); font-weight: 500; }
+.demo-arrow {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-family: var(--mono);
+  margin: 10px 0;
+  letter-spacing: 1px;
+}
+.demo-row.bad { background: rgba(80,30,30,0.3); }
+.demo-row.bad strong { color: #C99; text-decoration: line-through; }
+.demo-row.good { background: rgba(60,80,50,0.3); }
+.demo-row.good strong { color: #A8C088; }
+
+/* ── Pricing rows ── */
+.price-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 36px;
+}
+.price-row {
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: rgba(20,17,13,0.4);
+}
+.price-row .pr-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.price-row .pr-val {
+  font-family: var(--serif);
+  font-size: 44px;
+  font-weight: 400;
+  color: var(--accent);
+  margin-bottom: 4px;
+  line-height: 1;
+}
+.price-row .pr-val span { font-size: 16px; color: var(--text-muted); margin-left: 4px; font-family: var(--kr); }
+.price-row .pr-unit { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+.price-row .pr-desc { font-size: 13.5px; color: var(--text-muted); line-height: 1.7; }
+
+/* ── Bonus / Charge ── */
+.bonus-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+}
+.bonus-card {
+  padding: 24px;
+  background: rgba(20,17,13,0.4);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.bonus-card .bc-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.bonus-card .bc-step {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 2;
+}
+.bonus-card .bc-step strong { color: var(--text); font-weight: 500; }
+.charge-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.charge-cell {
+  padding: 12px 6px;
+  text-align: center;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border-soft);
+  border-radius: 3px;
+}
+.charge-cell .cc-amt { font-size: 14px; font-weight: 600; color: var(--text); }
+.charge-cell .cc-bonus { font-size: 11px; color: var(--accent); font-family: var(--mono); margin-top: 2px; }
+
+/* ── Reviews ── */
+.review-list { margin-top: 32px; display: flex; flex-direction: column; gap: 14px; }
+.review-card {
+  padding: 24px 28px;
+  background: rgba(20,17,13,0.5);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 4px 4px 0;
+}
+.review-text {
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--text);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+.review-author {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ── FAQ accordion ── */
+.faq-list { margin-top: 32px; border-top: 1px solid var(--border); }
+.faq-item {
+  border-bottom: 1px solid var(--border);
+}
+.faq-q {
+  padding: 24px 0;
+  font-family: var(--kr);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: color 0.2s;
+}
+.faq-q:hover { color: var(--accent); }
+.faq-q::after { content: '+'; font-size: 22px; color: var(--text-muted); font-family: var(--mono); transition: transform 0.2s; }
+.faq-q.open::after { content: '−'; }
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  font-size: 14.5px;
+  color: var(--text-muted);
+  line-height: 1.85;
+}
+.faq-a.open { max-height: 400px; padding-bottom: 24px; }
+
+/* ── 2-tier translation 비교 ── */
+.tier-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 28px;
+}
+.tier-card {
+  padding: 28px;
+  background: rgba(20,17,13,0.5);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.tier-card .tier-title {
+  font-family: var(--kr);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.tier-card .tier-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.75;
+  margin-bottom: 16px;
+}
+.tier-card .tier-price {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 1px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+}
+
+/* ── 비교 테이블 ── */
+.cmp-table {
+  width: 100%;
+  margin-top: 28px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.cmp-table th {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: left;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 400;
+}
+.cmp-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text-muted);
+}
+.cmp-table td:first-child { color: var(--text); }
+.cmp-table .yes { color: var(--accent); font-weight: 600; }
+.cmp-table .no { color: var(--text-dim); }
+
+/* ── Final CTA box ── */
+.final-cta {
+  margin: 80px auto 60px;
+  max-width: 980px;
+  padding: 64px 56px;
+  background: rgba(20,17,13,0.65);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+.final-cta .fc-title {
+  font-family: var(--kr);
+  font-size: clamp(28px, 3.5vw, 40px);
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+.final-cta .fc-sub {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+.final-cta .hero-cta-row { justify-content: center; }
+
+/* ── Footer ── */
+footer {
+  padding: 60px 60px 36px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-dim);
+  position: relative;
+  z-index: 2;
+  background: rgba(10,8,6,0.5);
+}
+.footer-inner { max-width: 1280px; margin: 0 auto; }
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 24px;
+}
+.footer-logo { font-family: var(--serif); font-size: 22px; font-style: italic; color: var(--text); text-decoration: none; }
+.footer-links { display: flex; gap: 18px; flex-wrap: wrap; }
+.footer-links a { color: var(--text-muted); text-decoration: none; font-family: var(--mono); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+.footer-links a:hover { color: var(--accent); }
+.footer-business { line-height: 2; opacity: 0.8; }
+.footer-business span { margin-right: 14px; }
+
+@media (max-width: 900px) {
+  nav { padding: 16px 20px; }
+  .nav-center { display: none; }
+  .nav-cta { display: none; }
+  .nav-hamburger { display: block; }
+  .section { padding: 80px 24px; }
+  .hero { grid-template-columns: 1fr; gap: 48px; padding-top: 100px; padding-bottom: 100px; }
+  .cols-3 { grid-template-columns: 1fr; gap: 36px; }
+  .pillars { grid-template-columns: 1fr 1fr; }
+  .capability-strip { grid-template-columns: 1fr 1fr; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .price-grid { grid-template-columns: 1fr; }
+  .bonus-row { grid-template-columns: 1fr; }
+  .tier-grid { grid-template-columns: 1fr; }
+  .languages-grid { grid-template-columns: 1fr 1fr; }
+  .charge-grid { grid-template-columns: repeat(3,1fr); }
+  .method-row { grid-template-columns: 60px 1fr; gap: 20px; }
+  .method-row .method-desc { grid-column: 1 / -1; }
+  .final-cta { padding: 48px 24px; margin: 60px 24px 40px; }
+  footer { padding: 40px 24px 24px; }
+}
+
+::selection { background: var(--accent); color: var(--bg-deep); }
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
 </style>
 </head>
 <body>
 
-<a class="brand-mark" href="/">Linchpin Collective</a>
+<div class="atmosphere"></div>
 
-<div class="system-meta">
-  System v.1.00<br>
-  Est. 2026 · Seoul<br>
-  <span class="pill">[ Indexed ]</span>
+<nav>
+  <a class="nav-logo" href="/">
+    <span class="lg-name">Linchpin</span>
+    <span class="lg-sep">|</span>
+    <span>AI Translation</span>
+  </a>
+  <div class="nav-center">
+    <a href="#about">About</a>
+    <a href="#services">Services</a>
+    <a href="#engine">Engine</a>
+    <a href="#methodology">Methodology</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <a class="nav-cta" href="https://www.linchpinai.io/sign-up.html" target="_blank" rel="noopener">무료 시작하기</a>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기">☰</button>
+</nav>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#about">About</a>
+  <a href="#services">Services</a>
+  <a href="#engine">Engine</a>
+  <a href="#methodology">Methodology</a>
+  <a href="#pricing">Pricing</a>
+  <a href="#contact">Contact</a>
+  <a href="https://www.linchpinai.io/sign-up.html" target="_blank" rel="noopener">무료 시작하기</a>
 </div>
-
-<div class="bottom-meta left">
-  Linchpin Live<br>
-  Translation Engine · Core Protocol 01
-</div>
-
-<div class="bottom-meta right">
-  Trans-Lingual Engine<br>
-  Active · Real-Time
-</div>
-
-<div class="scroll-label">Scroll to Translate</div>
 
 <main>
 
-<!-- 책 무대: main 영역 전체에 sticky로 회전 -->
-<div class="book-stage" aria-hidden="true">
-  <div class="book-3d" id="book-3d">
-    <div class="bk-front">
-      <div class="bk-tag">Linchpin · Vol. 01</div>
-      <div class="bk-title">Terminology</div>
-      <div class="bk-foot">Linchpin Translation v.1</div>
+<!-- ─── HERO ─── -->
+<section class="section hero">
+  <div class="hero-left">
+    <div class="eyebrow">Translation Memory Engine</div>
+    <h1 class="headline">이전 번역을<br><em>기억하는</em><br>AI 번역.</h1>
+  </div>
+  <div class="hero-right">
+    <p class="lead">한 번 번역한 말투·용어·문체를 다음 번역에 자동 적용합니다. 시리즈 10편을 번역해도 톤이 흔들리지 않아요.</p>
+    <div class="hero-cta-row">
+      <a class="btn btn-solid" href="https://www.linchpinai.io/sign-up.html" target="_blank" rel="noopener">무료로 시작하기</a>
+      <a class="btn-link" href="#services">서비스 살펴보기 →</a>
     </div>
-    <div class="bk-back"></div>
-    <div class="bk-spine"><span>Linchpin · Terminology</span></div>
-    <div class="bk-edge"></div>
-    <div class="bk-top"></div>
-    <div class="bk-bottom"></div>
+  </div>
+</section>
+
+<!-- ─── ABOUT (Why Linchpin) ─── -->
+<section class="section" id="about">
+  <div style="display:grid;grid-template-columns:1fr 2fr;gap:80px;align-items:start">
+    <div>
+      <div class="eyebrow">Our Approach</div>
+    </div>
+    <div>
+      <h2 class="headline-sm">우리는 <em>기억하는</em><br>번역 엔진을 만듭니다.</h2>
+      <p class="lead" style="max-width:540px">전문 번역가들이 쓰는 CAT 툴의 핵심 기능, 번역 메모리를 AI 번역에 결합한 국내 유일 서비스. 빠르고 저렴하면서, 일관성이 흔들리지 않습니다.</p>
+    </div>
+  </div>
+  <div class="cols-3">
+    <div class="col-item">
+      <div class="col-title">Remembered.</div>
+      <div class="col-desc">한 번 번역한 스타일과 용어를 자동 저장하고, 다음 번역에 그대로 이어집니다. 쓸수록 정확해지는 구조.</div>
+    </div>
+    <div class="col-item">
+      <div class="col-title">Locked.</div>
+      <div class="col-desc">고유명사·전문용어를 한 번 등록하면 모든 번역에 100% 강제 적용. 표기가 흔들릴 일이 없어요.</div>
+    </div>
+    <div class="col-item">
+      <div class="col-title">Preserved.</div>
+      <div class="col-desc">자막 타임코드는 1ms도 안 건드리고, 문서 폰트·표·단락 서식은 최대한 그대로 유지합니다.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SERVICES (Core Pillars) ─── -->
+<section class="section" id="services">
+  <div class="eyebrow">Core Pillars</div>
+  <h2 class="headline-sm">하나의 플랫폼,<br>모든 번역.</h2>
+  <p class="lead">자막과 문서, 영상과 논문. 파일을 올리면 원본 구조 그대로 돌려드려요.</p>
+  <div class="pillars">
+    <a class="pillar-card" href="https://www.linchpinai.io/subtitle.html" target="_blank" rel="noopener">
+      <div class="pillar-num">01 · Subtitle</div>
+      <div class="pillar-title">자막 번역</div>
+      <div class="pillar-desc">SRT·VTT·FCPXML 타임코드 1ms도 안 건드려요. 업로드 후 3분 안에 완성.</div>
+      <div class="pillar-meta"><span>From ₩700/min</span><span>→</span></div>
+    </a>
+    <a class="pillar-card" href="https://www.linchpinai.io/document.html" target="_blank" rel="noopener">
+      <div class="pillar-num">02 · Document</div>
+      <div class="pillar-title">문서 번역</div>
+      <div class="pillar-desc">PDF·DOCX·TXT 폰트·볼드·단락·표까지 최대한 보존하는 서식 유지 번역.</div>
+      <div class="pillar-meta"><span>From ₩3/char</span><span>→</span></div>
+    </a>
+    <a class="pillar-card" href="https://www.linchpinai.io/translation-memory.html" target="_blank" rel="noopener">
+      <div class="pillar-num">03 · Memory</div>
+      <div class="pillar-title">번역 메모리</div>
+      <div class="pillar-desc">이전 번역의 말투·용어·문체를 자동 저장. 다음 번역에 자동 적용. 쓸수록 정확.</div>
+      <div class="pillar-meta"><span>Auto · Free</span><span>→</span></div>
+    </a>
+    <a class="pillar-card" href="https://www.linchpinai.io/glossary-intro.html" target="_blank" rel="noopener">
+      <div class="pillar-num">04 · Glossary</div>
+      <div class="pillar-title">단어장</div>
+      <div class="pillar-desc">고유명사·전문용어를 1회 등록하면 모든 번역에 100% 강제 적용. CSV·Excel 일괄.</div>
+      <div class="pillar-meta"><span>100% Locked</span><span>→</span></div>
+    </a>
+  </div>
+
+  <div class="eyebrow" style="margin-top:80px">Two-tier Translation</div>
+  <h3 class="headline-sm">두 가지 방식.<br>필요에 맞춰 선택하세요.</h3>
+  <div class="tier-grid">
+    <div class="tier-card">
+      <div class="tier-title">⚡ AI 번역</div>
+      <div class="tier-desc">빠르게 초안이 필요할 때. 업로드 후 3분이면 완성. 번역 메모리가 일관성을 지켜줍니다.</div>
+      <div class="tier-price">자막 ₩700/분 · 문서 ₩3/자</div>
+    </div>
+    <div class="tier-card">
+      <div class="tier-title">🔍 AI + 전문가 검수</div>
+      <div class="tier-desc">방송 납품급이 필요할 때. AI 초안 위에 전문 검수자가 직접 수정합니다. 채팅으로 수정 요청도 가능.</div>
+      <div class="tier-price">자막 ₩6,000/분 · 문서 ₩25/자</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ENGINE (Capabilities) ─── -->
+<section class="section" id="engine">
+  <div class="eyebrow">Translation Engine</div>
+  <h2 class="headline-sm">다른 AI에는 없는 것.</h2>
+  <p class="lead">트라도스·memoQ 같은 전문 번역 프로그램의 핵심 기능을 AI 번역에 그대로 결합했습니다.</p>
+
+  <table class="cmp-table">
+    <thead>
+      <tr><th>기능</th><th>일반 AI</th><th>Linchpin AI</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>이전 번역 자동 참고</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>스타일 자동 적용</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>용어 일관성 보장</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>타임코드 완전 보존</td><td class="no">✗</td><td class="yes">✓</td></tr>
+      <tr><td>전문가 검수 연동</td><td class="no">✗</td><td class="yes">✓</td></tr>
+    </tbody>
+  </table>
+
+  <div class="capability-strip" style="margin-top:48px">
+    <div class="cap-item">
+      <div class="cap-tag">Capability 01</div>
+      <div class="cap-name">Memory Recall</div>
+      <div class="cap-sub">유사도 89% 이상 문장 자동 참고. 시리즈 톤이 끝까지 유지됩니다.</div>
+    </div>
+    <div class="cap-item">
+      <div class="cap-tag">Capability 02</div>
+      <div class="cap-name">Term Lock</div>
+      <div class="cap-sub">고유명사·전문용어 100% 고정. 등록 즉시 모든 번역에 강제 적용.</div>
+    </div>
+    <div class="cap-item">
+      <div class="cap-tag">Capability 03</div>
+      <div class="cap-name">Format Fidelity</div>
+      <div class="cap-sub">자막 타임코드·문서 서식 원본 그대로 보존. 폰트·볼드·단락·표.</div>
+    </div>
+    <div class="cap-item">
+      <div class="cap-tag">Capability 04</div>
+      <div class="cap-name">Expert Review</div>
+      <div class="cap-sub">AI 초안 위에 전문가가 직접 수정. 고객 채팅으로 수정 요청 즉시 반영.</div>
+    </div>
+  </div>
+
+  <!-- TM 데모 -->
+  <div class="demo-card" style="margin-top:48px">
+    <div class="demo-label">Live Demo · AI 의료 영상 논문 시리즈 (한→영)</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px">💾 논문 1편 — TM 저장</div>
+    <div class="demo-row">
+      본 연구는 <strong>딥러닝 기반 CNN</strong>을 활용하여 <strong>흉부 X선</strong>에서 폐결절을 자동 탐지하는 방법론을 제안하였다.
+    </div>
+    <div class="demo-row">
+      This study proposes a methodology for automatically detecting pulmonary nodules in <strong>chest X-ray images</strong> using a <strong>deep learning-based CNN</strong>.
+    </div>
+    <div class="demo-arrow">— 유사도 89% 매칭 —</div>
+    <div style="font-size:13px;color:var(--accent);margin-bottom:14px">⚡ 논문 2편 — TM 자동 적용</div>
+    <div class="demo-row good">
+      This study proposes a framework for automatically classifying hepatic lesions in <strong>abdominal CT images</strong> using a <strong>self-supervised learning-based ViT</strong>.
+    </div>
+    <div style="font-size:12px;color:var(--text-dim);margin-top:8px;font-style:italic">↑ 문장 구조·종결어미 TM 89% 참고 적용</div>
+  </div>
+
+  <!-- Glossary 데모 -->
+  <div class="demo-card">
+    <div class="demo-label">Glossary Demo · 드라마 〈달빛 서가〉 (한→영)</div>
+    <div style="font-size:13px;color:#C99;margin-bottom:14px">❌ 단어장 없이 — 표기 불일치</div>
+    <div class="demo-row bad">
+      <strong>Suh Yoon-Ha</strong> opened the door of <strong>Moonlight Bookstore</strong> and called out to <strong>Kang Ha-Rin</strong>. "The <strong>Door of Memory</strong> is about to close."
+    </div>
+    <div class="demo-arrow">— 단어장 등록 후 —</div>
+    <div style="font-size:13px;color:#A8C088;margin-bottom:14px">✓ 100% 동일 표기 유지</div>
+    <div class="demo-row good">
+      <strong>Seo Yunha</strong> opened the door of <strong>The Moonlit Archive</strong> and called out to <strong>Kang Harin</strong>. "<strong>The Gate of Memories</strong> is about to close."
+    </div>
+  </div>
+</section>
+
+<!-- ─── METHODOLOGY ─── -->
+<section class="section" id="methodology">
+  <div class="eyebrow">Methodology</div>
+  <h2 class="headline-sm">번역의 일관성은<br>구조에서 나옵니다.</h2>
+  <div class="method-list">
+    <div class="method-row">
+      <div class="method-num">M_01</div>
+      <div class="method-name">TMR · Translation Memory Recall</div>
+      <div class="method-desc">고객사·작품별로 이전 번역 스타일 자동 저장. 유사도 89% 이상 문장은 자동 참고하여 톤 일관성 유지.</div>
+    </div>
+    <div class="method-row">
+      <div class="method-num">M_02</div>
+      <div class="method-name">GLO · Glossary Lock</div>
+      <div class="method-desc">고유명사·전문용어 1회 등록 = 평생 100% 고정 적용. CSV·Excel 일괄 등록, 단어장 무제한 무료.</div>
+    </div>
+    <div class="method-row">
+      <div class="method-num">M_03</div>
+      <div class="method-name">FFP · Format Fidelity Pipeline</div>
+      <div class="method-desc">자막 타임코드 1ms 보존, 문서 폰트·볼드·단락·표 원본 구조 그대로 재구성하는 후처리 파이프라인.</div>
+    </div>
+    <div class="method-row">
+      <div class="method-num">M_04</div>
+      <div class="method-name">EXR · Expert Review Layer</div>
+      <div class="method-desc">AI 초안 위에 전문 검수자가 직접 수정. 고객-검수자 실시간 채팅으로 수정 요청 즉시 반영.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── STATS ─── -->
+<section class="section">
+  <div class="eyebrow">By the Numbers</div>
+  <h2 class="headline-sm">숫자가 증명합니다.</h2>
+  <div class="stats-row">
+    <div class="stat-item"><div class="stat-val">+40%</div><div class="stat-label">자막 추가 시 시청 완료율 향상</div></div>
+    <div class="stat-item"><div class="stat-val">3분</div><div class="stat-label">10분 분량 자막 평균 번역 속도</div></div>
+    <div class="stat-item"><div class="stat-val">1/10</div><div class="stat-label">외주 번역 대비 가격</div></div>
+    <div class="stat-item"><div class="stat-val">11</div><div class="stat-label">개 언어 지원 (검수 한·영·일·중)</div></div>
+  </div>
+</section>
+
+<!-- ─── LANGUAGES ─── -->
+<section class="section">
+  <div class="eyebrow">11 Languages</div>
+  <h2 class="headline-sm">전 세계 시장으로,<br>한 번의 번역으로.</h2>
+  <div class="languages-grid">
+    <div class="lang-pill"><span class="flag">🇺🇸</span><span class="lang-name">영어</span><span class="lang-tag">검수</span></div>
+    <div class="lang-pill"><span class="flag">🇯🇵</span><span class="lang-name">일본어</span><span class="lang-tag">검수</span></div>
+    <div class="lang-pill"><span class="flag">🇨🇳</span><span class="lang-name">중국어</span><span class="lang-tag">검수</span></div>
+    <div class="lang-pill"><span class="flag">🇰🇷</span><span class="lang-name">한국어</span><span class="lang-tag">검수</span></div>
+    <div class="lang-pill"><span class="flag">🇪🇸</span><span class="lang-name">스페인어</span></div>
+    <div class="lang-pill"><span class="flag">🇻🇳</span><span class="lang-name">베트남어</span></div>
+    <div class="lang-pill"><span class="flag">🇹🇭</span><span class="lang-name">태국어</span></div>
+    <div class="lang-pill"><span class="flag">🇮🇩</span><span class="lang-name">인도네시아어</span></div>
+    <div class="lang-pill"><span class="flag">🇫🇷</span><span class="lang-name">프랑스어</span></div>
+    <div class="lang-pill"><span class="flag">🇧🇷</span><span class="lang-name">포르투갈어</span></div>
+  </div>
+</section>
+
+<!-- ─── PRICING ─── -->
+<section class="section" id="pricing">
+  <div class="eyebrow">Pricing</div>
+  <h2 class="headline-sm">합리적인 가격,<br>투명한 구조.</h2>
+  <p class="lead">구독도, 약정도, 유효기간도 없어요. 필요할 때 충전하고, 남으면 그대로 보관.</p>
+  <div class="price-grid">
+    <div class="price-row">
+      <div class="pr-tag">자막 · AI 번역</div>
+      <div class="pr-val">700<span>원/분</span></div>
+      <div class="pr-unit">10분 영상 = 7,000원</div>
+      <div class="pr-desc">업로드 후 3분이면 완성. 타임코드 100% 보존.</div>
+    </div>
+    <div class="price-row">
+      <div class="pr-tag">자막 · AI + 전문가 검수</div>
+      <div class="pr-val">6,000<span>원/분</span></div>
+      <div class="pr-unit">10분 영상 = 60,000원</div>
+      <div class="pr-desc">AI 초안 + 전문 번역가 직접 검수. 방송 납품급.</div>
+    </div>
+    <div class="price-row">
+      <div class="pr-tag">문서 · AI 번역</div>
+      <div class="pr-val">3<span>원/자</span></div>
+      <div class="pr-unit">10,000자 = 30,000원</div>
+      <div class="pr-desc">PDF·DOCX·TXT 서식 유지. 단락·표 자동 정렬.</div>
+    </div>
+    <div class="price-row">
+      <div class="pr-tag">문서 · AI + 전문가 검수</div>
+      <div class="pr-val">25<span>원/자</span></div>
+      <div class="pr-unit">10,000자 = 250,000원</div>
+      <div class="pr-desc">법률·학술·계약서 등 정확도가 중요한 문서에.</div>
+    </div>
+  </div>
+
+  <div class="bonus-row">
+    <div class="bonus-card">
+      <div class="bc-title">🎁 가입 혜택</div>
+      <div class="bc-step">
+        <strong>STEP 01</strong> · 가입 즉시 5,000원 자동 지급<br>
+        <strong>STEP 02</strong> · 첫 번역 완료 시 +3,000원<br>
+        <strong>STEP 03</strong> · 첫 충전 시 +10% 보너스
+      </div>
+    </div>
+    <div class="bonus-card">
+      <div class="bc-title">💳 충전 패키지</div>
+      <div class="charge-grid">
+        <div class="charge-cell"><div class="cc-amt">1만</div><div class="cc-bonus">입문</div></div>
+        <div class="charge-cell"><div class="cc-amt">3만</div><div class="cc-bonus">+5%</div></div>
+        <div class="charge-cell"><div class="cc-amt">5만</div><div class="cc-bonus">+10%</div></div>
+        <div class="charge-cell"><div class="cc-amt">10만</div><div class="cc-bonus">+15%</div></div>
+        <div class="charge-cell"><div class="cc-amt">20만</div><div class="cc-bonus">+20%</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── REVIEWS ─── -->
+<section class="section">
+  <div class="eyebrow">Testimonials</div>
+  <h2 class="headline-sm">직접 써본 분들의<br>이야기.</h2>
+  <p class="lead">마케팅 문구가 아니라, 실제로 번역을 맡기신 분들의 후기입니다.</p>
+  <div class="review-list">
+    <div class="review-card">
+      <div class="review-text">"SRT 올리면 타임코드 하나도 안 깨지고 구어체가 정말 자연스럽게 나와요. 시리즈물 작업할 때 특히 편해요."</div>
+      <div class="review-author">— 김○○, 프리랜서 자막 번역가</div>
+    </div>
+    <div class="review-card">
+      <div class="review-text">"AI인데 어색한 직역이 거의 없어요. 같은 시간에 두 배는 더 작업하는 것 같아요."</div>
+      <div class="review-author">— 이○○, 프리랜서 번역가</div>
+    </div>
+    <div class="review-card">
+      <div class="review-text">"전문 용어가 문서마다 일관되게 나오는 게 인상적이에요. 파일 하나로 해결돼요."</div>
+      <div class="review-author">— 박○○, 외국계 기업 마케팅 담당</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ ─── -->
+<section class="section">
+  <div class="eyebrow">Frequently Asked</div>
+  <h2 class="headline-sm">자주 묻는 질문.</h2>
+  <div class="faq-list">
+    <div class="faq-item"><div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">무료 크레딧으로 바로 번역할 수 있나요?</div><div class="faq-a">네, 가입 즉시 5,000원이 자동 지급돼요. 자막 약 7분, 문서 약 1,600자를 바로 번역해볼 수 있어요.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">번역 메모리는 뭐가 다른가요?</div><div class="faq-a">일반 AI는 매번 새로 시작해요. Linchpin AI는 고객사·작품별로 이전 번역 스타일을 자동 저장하고, 다음 번역에 자동 적용합니다.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">어떤 파일 형식을 지원하나요?</div><div class="faq-a">자막: SRT, VTT, FCPXML. 문서: PDF, DOCX, TXT. 총 6가지 형식을 지원해요.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">크레딧 유효기간이 있나요?</div><div class="faq-a">아니요. 충전한 크레딧은 유효기간 없이 보관돼요.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">파일 보안은 어떻게 되나요?</div><div class="faq-a">모든 파일은 AES-256으로 암호화 저장, 90일 후 자동 삭제돼요.</div></div>
+  </div>
+</section>
+
+<!-- ─── FINAL CTA ─── -->
+<div class="final-cta" id="contact">
+  <div class="eyebrow" style="justify-content:center">Ready to Begin</div>
+  <h2 class="fc-title">번역을 시작해 보세요.</h2>
+  <p class="fc-sub">가입 즉시 5,000원 무료 크레딧 자동 지급. 카드 등록 없이.</p>
+  <div class="hero-cta-row">
+    <a class="btn btn-solid" href="https://www.linchpinai.io/sign-up.html" target="_blank" rel="noopener">무료로 시작하기</a>
+    <a class="btn btn-ghost" href="https://www.linchpinai.io" target="_blank" rel="noopener">production 사이트로 이동</a>
   </div>
 </div>
-
-<!-- ─── Section 1 — Hero ─── -->
-<section class="lp lp-hero">
-  <div class="lp-tagline">Translation, Remembered</div>
-  <h1 class="lp-headline">Memory<br>Made Material</h1>
-  <div class="cta-row">
-    <a class="cta-btn solid" href="#services">Explore Services</a>
-    <a class="cta-btn" href="https://www.linchpinai.io" target="_blank" rel="noopener">Begin Translation →</a>
-  </div>
-</section>
-
-<div class="section-divider"><span class="star">✻</span></div>
-
-<!-- ─── Section 2 — Quote (원문 / 번역 병치) ─── -->
-<section class="lp">
-  <div class="lp-quote-wrap">
-    <div class="lp-quote">
-      <div class="label">Origin · Source</div>
-      <div class="text">한 번 알려준 말투는,<br>다음 번역에서도 그대로 살아남는다.</div>
-    </div>
-    <div class="lp-quote right">
-      <div class="label">Result · Synthesis</div>
-      <div class="text">A voice once taught<br>survives every translation that follows.</div>
-    </div>
-  </div>
-</section>
-
-<div class="section-divider"><span class="star">✻</span></div>
-
-<!-- ─── Section 3 — 거대 헤드라인 + 카피 ─── -->
-<section class="lp">
-  <div style="width:100%;text-align:center">
-    <h2 class="lp-headline">Beyond the<br>Printed Word</h2>
-    <div class="lp-tagline" style="margin-top:48px">CAT 툴의 핵심을 AI에 결합한,<br>국내 유일의 기억하는 번역 엔진</div>
-  </div>
-</section>
-
-<div class="section-divider"><span class="star">✻</span></div>
-
-<!-- ─── Section 4 — Services (4개 카드) ─── -->
-<section class="lp" id="services" style="padding-top:80px;padding-bottom:80px">
-  <div style="width:100%;max-width:1100px;margin:0 auto">
-    <div class="lp-tagline" style="margin-bottom:60px">Index · The Four Disciplines</div>
-    <div class="svc-grid">
-      <a class="svc-card" href="https://www.linchpinai.io/subtitle.html" target="_blank" rel="noopener">
-        <div class="svc-tag">001 · Subtitle</div>
-        <div class="svc-title">자막 번역</div>
-        <div class="svc-desc">SRT·VTT·FCPXML 타임코드를 1ms도 건드리지 않습니다. 업로드 후 3분.</div>
-        <div class="svc-meta"><span>From ₩700 / min</span><span>→</span></div>
-      </a>
-      <a class="svc-card" href="https://www.linchpinai.io/document.html" target="_blank" rel="noopener">
-        <div class="svc-tag">002 · Document</div>
-        <div class="svc-title">문서 번역</div>
-        <div class="svc-desc">PDF·DOCX·TXT 폰트·볼드·단락·표. 원본 서식을 최대한 보존합니다.</div>
-        <div class="svc-meta"><span>From ₩3 / char</span><span>→</span></div>
-      </a>
-      <a class="svc-card" href="https://www.linchpinai.io/translation-memory.html" target="_blank" rel="noopener">
-        <div class="svc-tag">003 · Memory</div>
-        <div class="svc-title">번역 메모리</div>
-        <div class="svc-desc">이전 번역의 말투·용어·문체를 자동 저장. 다음 번역에 자동 적용.</div>
-        <div class="svc-meta"><span>Auto · Free</span><span>→</span></div>
-      </a>
-      <a class="svc-card" href="https://www.linchpinai.io/glossary-intro.html" target="_blank" rel="noopener">
-        <div class="svc-tag">004 · Glossary</div>
-        <div class="svc-title">단어장</div>
-        <div class="svc-desc">고유명사·전문용어를 한 번 등록하면 모든 번역에 100% 강제 적용.</div>
-        <div class="svc-meta"><span>100% Locked</span><span>→</span></div>
-      </a>
-    </div>
-  </div>
-</section>
-
-<div class="section-divider"><span class="star">✻</span></div>
-
-<!-- ─── Section 5 — Why us (Manifesto) ─── -->
-<section class="lp">
-  <div class="lp-quote-wrap">
-    <div class="lp-quote">
-      <div class="label">Manifesto · 01</div>
-      <div class="text">번역은 한 번에 끝나지 않는다.<br>다음 번역을 위한 기억으로 남는다.</div>
-    </div>
-    <div class="lp-quote right">
-      <div class="label">Manifesto · 02</div>
-      <div class="text">트라도스의 정확함을, GPT의 자연스러움으로.<br>두 세계의 결합.</div>
-    </div>
-  </div>
-</section>
-
-<div class="section-divider"><span class="star">✻</span></div>
-
-<!-- ─── Section 6 — CTA ─── -->
-<section class="lp">
-  <div style="width:100%;text-align:center">
-    <div class="lp-tagline" style="margin-bottom:40px">Pricing · Details · Plans</div>
-    <h2 class="lp-headline" style="font-size:clamp(48px,8vw,120px)">Enter the<br>Collective</h2>
-    <p style="font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin-top:32px;opacity:0.75">For pricing & full feature set, visit production site →</p>
-    <div class="cta-row">
-      <a class="cta-btn solid" href="https://www.linchpinai.io" target="_blank" rel="noopener">Visit Linchpin AI</a>
-      <a class="cta-btn" href="mailto:abcysl@gmail.com">Contact</a>
-    </div>
-  </div>
-</section>
 
 </main>
 
 <footer>
-  <div class="ft-line">Linchpin Collective · An Experimental Edition by Linchpin AI</div>
-  <div class="ft-line">Seoul · Est. 2026 · All Rights Reserved</div>
-  <div class="ft-line" style="margin-top:18px;opacity:0.6">Visit production site: <a href="https://www.linchpinai.io" style="color:inherit;text-decoration:underline">linchpinai.io</a></div>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <a class="footer-logo" href="/">Linchpin AI</a>
+      <div class="footer-links">
+        <a href="https://www.linchpinai.io/about.html" target="_blank" rel="noopener">회사소개</a>
+        <a href="https://www.linchpinai.io/terms.html" target="_blank" rel="noopener">이용약관</a>
+        <a href="https://www.linchpinai.io/privacy.html" target="_blank" rel="noopener">개인정보</a>
+        <a href="https://www.linchpinai.io/contact.html" target="_blank" rel="noopener">문의</a>
+      </div>
+    </div>
+    <div class="footer-business">
+      <span>상호명: 린치핀</span>
+      <span>대표자: 임예성</span>
+      <span>사업자등록번호: 628-16-02485</span>
+      <span>통신판매업: 제2026-서울강서-1168호</span>
+      <span>이메일: abcysl@gmail.com</span>
+      <span>주소: 서울 강서구 강서로7길 20-29, 405호</span>
+      <div style="margin-top:18px;opacity:0.6">© 2026 린치핀 · All rights reserved · An Atmospheric Edition</div>
+    </div>
+  </div>
 </footer>
 
 <script>
-// ── 책 3D 회전 + 부유 (스크롤 진행도 연동) ──
-(function(){
-  const book = document.getElementById('book-3d');
-  if (!book) return;
-  let raf = null;
-  function update(){
-    raf = null;
-    const scrolled = window.scrollY;
-    const ry = -8 + scrolled * 0.18;          // Y축: 천천히 회전
-    const rx = -14 + Math.sin(scrolled * 0.005) * 8; // X축: 사인 흔들림
-    const rz = Math.sin(scrolled * 0.003) * 6;        // Z축: 살짝 기울기
-    const ty = Math.sin(scrolled * 0.004) * 14;       // Y이동: 부유감
-    book.style.setProperty('--by', ry + 'deg');
-    book.style.setProperty('--bx', rx + 'deg');
-    book.style.setProperty('--bz', rz + 'deg');
-    book.style.setProperty('--bty', ty + 'px');
-  }
-  window.addEventListener('scroll', () => {
-    if (raf) return;
-    raf = requestAnimationFrame(update);
-  }, { passive: true });
-  update();
-})();
+// 모바일 메뉴
+document.getElementById('nav-hamburger').addEventListener('click', () => {
+  document.getElementById('mobile-menu').classList.toggle('open');
+});
+document.querySelectorAll('.mobile-menu a').forEach(a => {
+  a.addEventListener('click', () => document.getElementById('mobile-menu').classList.remove('open'));
+});
 </script>
 
 </body>
